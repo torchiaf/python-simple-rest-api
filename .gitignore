@@ -1,4 +1,5 @@
 kubeconfig.yaml
 ./tmp
-./temp*
-./temp/*
+/temp*
+/temp/*
+myenv

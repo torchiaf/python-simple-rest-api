@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ""
+  annotations:
+    meta.helm.sh/release-name: ""
+    meta.helm.sh/release-namespace: ""
+  labels:
+    helm.sh/chart: sensors-0.1.0
+    app.kubernetes.io/name: ""
+    app.kubernetes.io/instance: ""
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ""
+      app.kubernetes.io/instance: ""
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sensors-0.1.0
+        app.kubernetes.io/name: ""
+        app.kubernetes.io/instance: ""
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: ""
+      securityContext:
+        {}
+      containers:
+        - name: controller
+          securityContext:
+            {}
+          image: "golang:1.23-alpine3.21"
+          imagePullPolicy: Always
+          command: ["sleep", "3600"]
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {}
+          volumeMounts:
+            - name: circuit
+              mountPath: "/circuit"
+            - name: modules
+              mountPath: "/circuit/modules.yaml"
+              subPath: "modules.yaml"
+            - name: source-code
+              mountPath: "/circuit/source-code.gz"
+              subPath: "source-code.gz"
+          env:
+            - name: APP_NAME
+              value: "" # To fill -  sensors
+            - name: APP_NAMESPACE
+              value: "" # To fill -  sensors
+            - name: APP_GROUP
+              value: "" # To fill -  sensors.io
+            - name: APP_VERSION
+              value: "" # To fill -  v1
+          envFrom:
+            - secretRef:
+                name: ""
+                optional: false
+      initContainers:
+        - name: source-code-builder
+          image: golang:1.23-alpine3.21
+          command: [
+            "/bin/sh", "-c",
+            "mkdir /circuit/source-code && tar -xvzf /circuit/source-code.gz -C /circuit/source-code && go build -C /circuit/source-code -o /circuit/init"]
+          volumeMounts:
+            - name: circuit
+              mountPath: "/circuit"
+            - name: source-code
+              mountPath: "/circuit/source-code.gz"
+              subPath: "source-code.gz"
+      volumes:
+      - name: modules
+        configMap:
+          name: ""
+          items:
+          - key: modules
+            path: modules.yaml
+      - name: source-code
+        configMap:
+          name: ""
+          items:
+          - key: source-code.gz
+            path: source-code.gz
+      - name: circuit
+        emptyDir:
+          sizeLimit: 1Gi
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: "true"

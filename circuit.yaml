@@ -1,0 +1,25 @@
+apiVersion: sensors.io/v1
+kind: Circuit
+metadata:
+  labels:
+    app.kubernetes.io/instance: sensors
+  name: circuit-0
+  namespace: sensors
+spec:
+  actions: []
+# ---
+# apiVersion: sensors.io/v1
+# kind: Circuit
+# metadata:
+#   labels:
+#     app.kubernetes.io/instance: sensors
+#   name: circuit-1
+#   namespace: sensors
+# spec:
+#   module: raspberrypi-1
+#   device: dht11
+#   actions:
+#     - op: read
+#       frequency:
+#         value: "2"
+#         unit: sec

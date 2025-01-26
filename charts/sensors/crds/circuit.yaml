@@ -20,33 +20,44 @@ spec:
           spec:
             type: object
             properties:
-              id:
-                type: string
-              module:
-                type: string
-              device:
-                type: string
               actions:
+                description: The chain of actions that Circuit should perform. Actions are performed following the order of elements in actions array
                 items:
                   type: object
                   properties:
+                    module:
+                      description: The module where device is hosted, can be empty
+                      type: string
+                    device:
+                      description: The input device. For index > 0 it will takes the input from previous element's output in the actions array. 
+                      type: string
                     op:
                       type: string
-                    frequency:
+                    args:
                       type: object
                       properties:
+                        key:
+                          type: string
                         value:
                           type: string
-                        unit:
+                    output:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
                           type: string
                 type: array
+              frequency:
+                type: object
+                properties:
+                  value:
+                    type: string
+                  unit:
+                    type: string
     selectableFields:
-    - jsonPath: .spec.module
-    - jsonPath: .spec.device
+    - jsonPath: .spec.frequency.value
     additionalPrinterColumns:
-    - jsonPath: .spec.module
-      name: Module
-      type: string
-    - jsonPath: .spec.device
-      name: Device
+    - jsonPath: .spec.frequency
+      name: Frequency
       type: string

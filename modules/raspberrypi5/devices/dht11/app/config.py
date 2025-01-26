@@ -1,8 +1,6 @@
-import os
 import builtins
 import yaml
 from pathlib import Path
-import pika
 from models import Module 
 
 # Redefine print to show the output when running in containers

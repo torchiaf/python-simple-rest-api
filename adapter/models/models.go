@@ -7,11 +7,10 @@ type RabbitMQ struct {
 	Password string
 }
 
-type Release struct {
-	Name      string
-	Namespace string
-	Group     string
-	Version   string
+type Config struct {
+	IsDev    bool
+	RabbitMQ RabbitMQ
+	Modules  map[string]Module
 }
 
 type Module struct {
@@ -33,26 +32,9 @@ type DeviceConfig struct {
 	Value string `yaml:"value"`
 }
 
-type Config struct {
-	IsDev    bool
-	Release  Release
-	RabbitMQ RabbitMQ
-	Modules  []Module
-}
-
 type Message struct {
+	// TODO refactoring
 	Device string `json:"device"`
+	Action string `json:"action"`
 	// Args   map[string]interface{} `json:"args"`
-}
-
-type Circuit struct {
-	APIVersion string `yaml:"apiVersion"`
-	Kind       string `yaml:"kind"`
-	Metadata   struct {
-		Name      string `yaml:"name"`
-		Namespace string `yaml:"namespace"`
-	} `yaml:"metadata"`
-	Spec struct {
-		Id string `yaml:"id"`
-	} `yaml:"spec"`
 }

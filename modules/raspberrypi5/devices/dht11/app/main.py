@@ -1,3 +1,4 @@
+import os
 import board
 import adafruit_dht
 from config import device, pin

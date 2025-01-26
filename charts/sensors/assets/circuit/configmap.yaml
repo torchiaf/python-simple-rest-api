@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ""
+  labels:
+    helm.sh/chart: sensors-0.1.0
+    app.kubernetes.io/name: ""
+    app.kubernetes.io/instance: ""
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    meta.helm.sh/release-name: ""
+    meta.helm.sh/release-namespace: ""
+binaryData:
+  source-code.gz: ""

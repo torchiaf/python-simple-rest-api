@@ -1,3 +1,6 @@
+- Modules, Devices, Circuit -> should be created by Crd POST, not helm install
+  - We could also use Fleet
+- Rename adapter -> rpc_client
 - Implement OpenAPI definitions
 - Golang process on master node to call the rabbitMQ endpoints, fetch data and update CRDS
 - Create Rancher extensions to handle sensors CRDs
@@ -18,3 +21,5 @@
   Google Wire https://github.com/google/wire?tab=readme-ov-file
 
 - Go Plugins to define Circuit workloads
+- Circuit crd should have play, stop, pause fields
+- Circuit crd should have a base64 to store code-source

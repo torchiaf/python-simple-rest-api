@@ -1,4 +1,4 @@
-package main
+package rabbitmq
 
 import (
 	"context"
@@ -8,12 +8,12 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/torchiaf/Sensors/controller/config"
-	"github.com/torchiaf/Sensors/controller/models"
-	"github.com/torchiaf/Sensors/controller/utils"
+	"github.com/torchiaf/Sensors/adapter/config"
+	"github.com/torchiaf/Sensors/adapter/models"
+	"github.com/torchiaf/Sensors/adapter/utils"
 )
 
-func failOnError(err error, msg string) {
+func FailOnError(err error, msg string) {
 	if err != nil {
 		log.Panicf("%s: %s", msg, err)
 	}
@@ -28,19 +28,22 @@ func randomString(l int) string {
 }
 
 func randInt(min int, max int) int {
+	rand.Seed(time.Now().UTC().UnixNano())
+
 	return min + rand.Intn(max-min)
 }
 
-func exec(routingKey string, message models.Message) (res string, err error) {
+// TODO refactoring module, device, message
+func Exec(routingKey string, message models.Message) (res string, err error) {
 
 	address := fmt.Sprintf("amqp://%s:%s@%s:%s/", config.Config.RabbitMQ.Username, config.Config.RabbitMQ.Password, config.Config.RabbitMQ.Host, config.Config.RabbitMQ.Port)
 
 	conn, err := amqp.Dial(address)
-	failOnError(err, "Failed to connect to RabbitMQ")
+	FailOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
 	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
+	FailOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
@@ -51,7 +54,7 @@ func exec(routingKey string, message models.Message) (res string, err error) {
 		false, // noWait
 		nil,   // arguments
 	)
-	failOnError(err, "Failed to declare a queue")
+	FailOnError(err, "Failed to declare a queue")
 
 	msgs, err := ch.Consume(
 		q.Name, // queue
@@ -62,7 +65,7 @@ func exec(routingKey string, message models.Message) (res string, err error) {
 		false,  // no-wait
 		nil,    // args
 	)
-	failOnError(err, "Failed to register a consumer")
+	FailOnError(err, "Failed to register a consumer")
 
 	corrId := randomString(32)
 
@@ -80,44 +83,17 @@ func exec(routingKey string, message models.Message) (res string, err error) {
 			ContentType:   "text/plain",
 			CorrelationId: corrId,
 			ReplyTo:       q.Name,
-			Body:          []byte(utils.ToString(message)),
+			Body:          []byte(utils.ToString(message)), // TODO refactoring devie, action, args
 		})
-	failOnError(err, "Failed to publish a message")
+	FailOnError(err, "Failed to publish a message")
 
 	for d := range msgs {
 		if corrId == d.CorrelationId {
 			res = string(d.Body)
-			failOnError(err, "Error msgs")
+			FailOnError(err, "Error msgs")
 			break
 		}
 	}
 
-	return
-}
-
-func main() {
-	rand.Seed(time.Now().UTC().UnixNano())
-
-	log.Printf("Config %+v", config.Config)
-
-	for {
-		for _, module := range config.Config.Modules {
-			log.Printf(" [x] Requesting on {%s, %s, %s}", module.Name, module.Type, module.RoutingKey)
-
-			res, err := exec(
-				module.RoutingKey,
-				models.Message{
-					Device: "dht11",
-					// Args: map[string]interface{}{
-					// 	"foo": "bar",
-					// },
-				},
-			)
-			failOnError(err, "Failed to handle RPC request")
-
-			log.Printf(" [%s] Got %+v", module.Name, res)
-		}
-
-		time.Sleep(time.Second)
-	}
+	return res, nil
 }
