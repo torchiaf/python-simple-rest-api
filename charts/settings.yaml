@@ -35,6 +35,15 @@ sensors:
               value: "D12"
             - name: RASPBERRYPI_VERSION
               value: "5"
+        - name: tm1637
+          type: TM1637
+          config:
+            - name: TM1637_CLK
+              value: "27"
+            - name: TM1637_DIO
+              value: "17"
   devices:
     - name: dht11
       type: DHT11
+    - name: tm1637
+      type: TM1637
